@@ -1,0 +1,247 @@
+/* ============================================================
+   STEPHANIE LOSABIA — Personal Portfolio V2
+   responsive.css  |  Breakpoints & Mobile Overrides
+   ============================================================ */
+
+/* ── TABLET  (≤ 1024px) ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+
+  .hero-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-img-wrap {
+    order: -1;
+  }
+
+  .hero-img-frame {
+    width: min(320px, 75vw);
+  }
+
+  .hero-img-frame img {
+    height: min(380px, 50vw);
+  }
+
+  .hero-cta {
+    justify-content: center;
+  }
+
+  .hero-stats {
+    margin: 2.5rem auto 0;
+  }
+
+  .hero-tagline {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* About */
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .about-img-wrap {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .about-img-accent {
+    right: 0.5rem;
+  }
+
+  /* Identity cards keep 3 columns */
+  .identity-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Contact */
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  /* Masonry 2 columns */
+  .masonry-grid {
+    columns: 2;
+  }
+
+}
+
+/* ── SMALL TABLET  (≤ 768px) ────────────────────────────────── */
+@media (max-width: 768px) {
+
+  :root {
+    --nav-height: 62px;
+  }
+
+  /* Nav */
+  .nav-links { display: none; }
+  #hamburger { display: flex; }
+
+  /* Hero */
+  .hero-name { font-size: clamp(2.2rem, 10vw, 3.5rem); }
+
+  .hero-stats {
+    max-width: 100%;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Hero image */
+  .hero-img-frame {
+    width: min(280px, 75vw);
+  }
+  .hero-img-frame img {
+    height: min(320px, 50vw);
+  }
+
+  /* Identity cards 1 row scroll or wrap */
+  .identity-cards {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  /* Projects */
+  .projects-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Gallery 1 column */
+  .masonry-grid {
+    columns: 1;
+  }
+
+  /* Lightbox buttons */
+  #lb-prev { left: 0.5rem; }
+  #lb-next { right: 0.5rem; }
+
+  /* Footer */
+  .footer-inner {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .footer-links {
+    gap: 1rem;
+  }
+
+  /* Back to top */
+  #back-to-top {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+
+}
+
+/* ── MOBILE  (≤ 480px) ──────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  .section-wrap { padding: 0 1.2rem; }
+
+  /* Nav */
+  .nav-inner { padding: 0 1.2rem; }
+
+  /* Hero */
+  #hero {
+    padding-top: calc(var(--nav-height) + 2rem);
+    padding-bottom: 3rem;
+  }
+
+  .hero-badge { font-size: 0.65rem; }
+  .hero-name  { font-size: clamp(2rem, 12vw, 3rem); }
+
+  .hero-cta {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-stats {
+    gap: 0.6rem;
+  }
+
+  .stat-card { padding: 1rem 0.6rem; }
+  .stat-value { font-size: 1.6rem; }
+  .stat-label { font-size: 0.65rem; }
+
+  /* Hero img */
+  .hero-img-frame {
+    width: min(260px, 80vw);
+  }
+  .hero-img-frame img {
+    height: min(300px, 55vw);
+  }
+  .hero-img-badge {
+    left: -0.5rem;
+    bottom: -0.5rem;
+  }
+
+  /* Sections */
+  #about,
+  #projects,
+  #gallery,
+  #contact { padding: 5rem 0; }
+
+  .section-title { font-size: clamp(1.7rem, 8vw, 2.4rem); }
+
+  /* About img */
+  .about-img-accent {
+    right: 0;
+    bottom: 1rem;
+  }
+
+  /* Projects single col at full width */
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-img-wrap { height: 180px; }
+
+  /* Contact form */
+  .contact-form { padding: 1.5rem 1.2rem; }
+
+  /* Gallery */
+  .masonry-grid { columns: 1; }
+
+  /* Lightbox */
+  #lightbox img {
+    max-width: 95vw;
+    max-height: 75vh;
+  }
+
+}
+
+/* ── LANDSCAPE MOBILE ───────────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-img-frame { display: none; }
+  #hero {
+    min-height: auto;
+    padding: calc(var(--nav-height) + 1.5rem) 0 2rem;
+  }
+  .hero-inner { grid-template-columns: 1fr; }
+}
+
+/* ── REDUCED MOTION ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ── PRINT ──────────────────────────────────────────────────── */
+@media print {
+  #navbar, #hamburger, #mobile-menu,
+  #back-to-top, #lightbox,
+  .hero-cta, .show-more-wrap,
+  .project-overlay, .masonry-item::after { display: none !important; }
+
+  body { background: #fff; color: #000; }
+  #hero { min-height: auto; padding-top: 2rem; }
+  .hero-inner { grid-template-columns: 1fr; }
+}
