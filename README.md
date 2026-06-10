@@ -13,4 +13,5 @@ A modern, fully responsive personal portfolio website built with HTML5, CSS3, Bo
 - Accessible, semantic HTML with focus on performance
 
 📁 Assets: Includes placeholder folders for images, icons, and gallery photos.
+
 📌 Created for Davao del Norte State College – IT student portfolio.
