@@ -67,6 +67,12 @@
         </svg>
       </button>
 
+      <!-- ⚙️ Developer's Option toggle -->
+      <button id="dev-toggle-btn" title="Developer's Option" aria-label="Open Developer Panel">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><path d="M9 12h6M12 9v6"/></svg>
+        DEV
+      </button>
+
       <!-- Hamburger (mobile) -->
       <button id="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
         <span></span>
@@ -614,69 +620,75 @@
       music performances, creative shoots, and candid moments.
     </p>
 
+    <!-- ── Gallery Year Filter Bar (populated by JS from photo data-year) ── -->
+    <div class="gallery-filter-bar" id="gallery-filter-bar">
+      <span class="gallery-filter-label">Filter:</span>
+      <!-- Year buttons are injected by app.js based on photos present -->
+    </div>
+
     <!-- Masonry grid -->
     <!-- ✏️ EDIT: Add/remove/replace masonry-item blocks below -->
-    <!-- Each item: set the img src and alt text -->
-    <div class="masonry-grid">
+    <!-- Each item: set the img src, alt text, and data-year="YYYY" for filtering -->
+    <div class="masonry-grid" id="masonry-grid">
 
       <!-- PHOTO 1 — assets/gallery/DSC00088.JPG -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 1">
-        <img src="./assets/gallery/DSC00088.JPG" alt="Gallery photo" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/DSC00088.JPG" alt="Gallery photo" loading="lazy" />
       </div>
 
       <!-- PHOTO 2 — assets/gallery/Cover 1.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 2">
-        <img src="./assets/gallery/Cover 1.jpg" alt="Cover photo — choir event" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/Cover 1.jpg" alt="Cover photo — choir event" loading="lazy" />
       </div>
 
       <!-- PHOTO 3 — assets/gallery/DSC00007.JPG -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 3">
-        <img src="./assets/gallery/DSC00007.JPG" alt="Gallery photo" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/DSC00007.JPG" alt="Gallery photo" loading="lazy" />
       </div>
 
       <!-- PHOTO 4 — assets/gallery/Duran 2.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 4">
-        <img src="./assets/gallery/Duran 2.jpg" alt="Portrait — Duran" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/Duran 2.jpg" alt="Portrait — Duran" loading="lazy" />
       </div>
 
       <!-- PHOTO 5 — assets/gallery/DSC00236.JPG -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 5">
-        <img src="./assets/gallery/DSC00236.JPG" alt="Gallery photo" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/DSC00236.JPG" alt="Gallery photo" loading="lazy" />
       </div>
 
       <!-- PHOTO 6 — assets/gallery/11 Fill the Frame .jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 6">
-        <img src="./assets/gallery/11 Fill the Frame .jpg" alt="Fill the Frame — photography" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/11 Fill the Frame .jpg" alt="Fill the Frame — photography" loading="lazy" />
       </div>
 
       <!-- PHOTO 7 — assets/gallery/24.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 7">
-        <img src="./assets/gallery/24.jpg" alt="Candid photo" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/24.jpg" alt="Candid photo" loading="lazy" />
       </div>
 
       <!-- PHOTO 8 — assets/gallery/5 Centered...mposition .jpg (5 Centered Composition .jpg) -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 8">
-        <img src="./assets/gallery/5 Centered Composition .jpg" alt="Centered Composition — photography" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/5 Centered Composition .jpg" alt="Centered Composition — photography" loading="lazy" />
       </div>
 
       <!-- PHOTO 9 — assets/gallery/18 Rule of Thirds.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 9">
-        <img src="./assets/gallery/18 Rule of Thirds.jpg" alt="Rule of Thirds — photography" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/18 Rule of Thirds.jpg" alt="Rule of Thirds — photography" loading="lazy" />
       </div>
 
       <!-- PHOTO 10 — assets/gallery/Rodriguez 1.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 10">
-        <img src="./assets/gallery/Rodriguez 1.jpg" alt="Portrait — Rodriguez" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/Rodriguez 1.jpg" alt="Portrait — Rodriguez" loading="lazy" />
       </div>
 
       <!-- PHOTO 11 — assets/gallery/Jalique 1.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 11">
-        <img src="./assets/gallery/Jalique 1.jpg" alt="Portrait — Jalique" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/Jalique 1.jpg" alt="Portrait — Jalique" loading="lazy" />
       </div>
 
       <!-- PHOTO 12 — assets/gallery/received_88...9896793.jpg -->
       <div class="masonry-item" role="button" tabindex="0" aria-label="Open photo 12">
-        <img src="./assets/gallery/received_882469159896793.jpg" alt="Candid event photo" loading="lazy" />
+        <img data-year="2023" src="./assets/gallery/received_882469159896793.jpg" alt="Candid event photo" loading="lazy" />
       </div>
 
       <!-- ✏️ MORE PHOTOS available in your gallery folder:
@@ -696,7 +708,7 @@
 
       <!-- ✏️ ADD MORE PHOTOS: Copy a masonry-item block above -->
 
-    </div><!-- /masonry-grid -->
+    </div><!-- /masonry-grid #masonry-grid -->
 
   </div>
 </section>
@@ -895,6 +907,163 @@
      JAVASCRIPT
      Load app.js last for best performance
 ════════════════════════════════════════════════ -->
+
+<!-- ╔══════════════════════════════════════════════════════════════════╗
+     ║  DEVELOPER'S OPTION PANEL                                       ║
+     ║  Hidden by default. Toggle with the ⚙ DEV button in the navbar  ║
+     ║  Features: Add/Edit/Delete Projects · Add Photos · Year Filter   ║
+     ╚══════════════════════════════════════════════════════════════════╝ -->
+
+<!-- Backdrop -->
+<div id="dev-panel-backdrop"></div>
+
+<!-- Panel -->
+<div id="dev-panel" role="dialog" aria-modal="true" aria-label="Developer's Option Panel">
+
+  <!-- Header -->
+  <div class="dev-panel-header">
+    <div class="dev-panel-title">
+      <span>⚙️</span>
+      <strong>Developer's Option</strong>
+      <small>DEV ONLY</small>
+    </div>
+    <button id="dev-panel-close" aria-label="Close panel">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="dev-tabs" role="tablist">
+    <button class="dev-tab active" data-tab="projects" role="tab" aria-selected="true">📁 Projects</button>
+    <button class="dev-tab" data-tab="gallery" role="tab" aria-selected="false">🖼 Gallery</button>
+  </div>
+
+  <!-- ─── TAB: PROJECTS ─────────────────────────────────────── -->
+  <div class="dev-panel-body">
+
+    <div class="dev-pane active" id="dev-pane-projects">
+
+      <!-- ADD NEW PROJECT -->
+      <div class="dev-section-title">➕ Add New Project</div>
+
+      <div class="dev-field">
+        <label>Project Image Path or URL</label>
+        <input type="text" id="np-img" placeholder="./assets/projects/MyProject.png" />
+        <div class="dev-img-preview" id="np-img-preview">
+          <span>Click to browse or paste a path above</span>
+          <input type="file" id="np-img-file" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="dev-edit-row">
+        <div class="dev-field">
+          <label>Category</label>
+          <select id="np-category">
+            <option value="IT Project">IT Project</option>
+            <option value="Visual Design">Visual Design</option>
+            <option value="Graphic Design">Graphic Design</option>
+            <option value="Product Design">Product Design</option>
+            <option value="Visual Art">Visual Art</option>
+            <option value="Music">Music</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="dev-field">
+          <label>Visibility</label>
+          <select id="np-visibility">
+            <option value="visible">Visible (first row)</option>
+            <option value="hidden">Hidden (Show More)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dev-field">
+        <label>Project Title</label>
+        <input type="text" id="np-title" placeholder="e.g. My Awesome Project" />
+      </div>
+
+      <div class="dev-field">
+        <label>Short Description</label>
+        <textarea id="np-desc" placeholder="1–2 sentences about the project..."></textarea>
+      </div>
+
+      <div class="dev-field">
+        <label>Button Label</label>
+        <input type="text" id="np-btn-label" placeholder="Show Details" value="Show Details" />
+      </div>
+
+      <div class="dev-field">
+        <label>Link URL</label>
+        <input type="url" id="np-link" placeholder="https://drive.google.com/..." />
+      </div>
+
+      <button class="dev-btn dev-btn-primary" id="np-add-btn">
+        ➕ Add Project to Portfolio
+      </button>
+
+      <!-- EXISTING PROJECTS LIST -->
+      <div class="dev-section-title">📋 Existing Projects</div>
+      <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;">
+        Click ✏️ to edit inline, 🗑 to remove. Changes apply instantly on the page.
+      </p>
+      <div class="dev-item-list" id="dev-project-list">
+        <!-- Populated by JS on panel open -->
+      </div>
+
+    </div><!-- /dev-pane-projects -->
+
+    <!-- ─── TAB: GALLERY ──────────────────────────────────────── -->
+    <div class="dev-pane" id="dev-pane-gallery">
+
+      <!-- ADD NEW PHOTO -->
+      <div class="dev-section-title">➕ Add New Photo</div>
+
+      <div class="dev-field">
+        <label>Photo Image Path or URL</label>
+        <input type="text" id="ng-img" placeholder="./assets/gallery/MyPhoto.jpg" />
+        <div class="dev-img-preview" id="ng-img-preview">
+          <span>Click to browse or paste a path above</span>
+          <input type="file" id="ng-img-file" accept="image/*" />
+        </div>
+      </div>
+
+      <div class="dev-edit-row">
+        <div class="dev-field">
+          <label>Alt Text / Caption</label>
+          <input type="text" id="ng-alt" placeholder="e.g. Choir performance 2024" />
+        </div>
+        <div class="dev-field">
+          <label>Year</label>
+          <input type="number" id="ng-year" placeholder="2024" min="2020" max="2030" value="2024" />
+        </div>
+      </div>
+
+      <button class="dev-btn dev-btn-primary" id="ng-add-btn">
+        ➕ Add Photo to Gallery
+      </button>
+
+      <!-- YEAR FILTER MANAGER -->
+      <div class="dev-section-title">📅 Filter by Year (preview)</div>
+      <div class="dev-year-filter" id="dev-year-filter">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- EXISTING PHOTOS LIST -->
+      <div class="dev-section-title">🖼 Existing Photos</div>
+      <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;">
+        Click 🗑 to remove a photo. Year shown is the filter tag.
+      </p>
+      <div class="dev-item-list" id="dev-gallery-list">
+        <!-- Populated by JS on panel open -->
+      </div>
+
+    </div><!-- /dev-pane-gallery -->
+
+  </div><!-- /dev-panel-body -->
+
+</div><!-- /dev-panel -->
+
+<!-- Toast notification -->
+<div id="dev-toast"></div>
+
 <script src="./js/app.js"></script>
 
 </body>
