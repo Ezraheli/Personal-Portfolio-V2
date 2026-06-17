@@ -1564,3 +1564,190 @@ button { cursor: pointer; font-family: inherit; }
 
 /* ── Dev panel footer (data tools) ── */
 #dev-panel { flex-direction: column; } /* ensure footer sticks to bottom */
+
+/* ══════════════════════════════════════════════════════════════
+   14. DEV AUTH MODAL — Password prompt
+   ══════════════════════════════════════════════════════════════ */
+
+/* Overlay */
+#dev-auth-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+}
+#dev-auth-modal.open {
+  display: flex;
+  animation: authFadeIn 0.22s ease;
+}
+
+@keyframes authFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Modal box */
+.dev-auth-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem 2rem;
+  width: min(360px, 92vw);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: authBoxIn 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes authBoxIn {
+  from { transform: translateY(20px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+/* Lock icon */
+.dev-auth-icon {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  line-height: 1;
+}
+
+/* Title */
+.dev-auth-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+/* Subtitle */
+.dev-auth-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+
+/* Input wrapper */
+.dev-auth-field {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+#dev-auth-input {
+  width: 100%;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 3rem 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  text-align: center;
+  letter-spacing: 0.12em;
+}
+#dev-auth-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+#dev-auth-input::placeholder {
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* Shake animation on wrong password */
+#dev-auth-input.shake {
+  animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2);
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  15%      { transform: translateX(-6px); }
+  35%      { transform: translateX(6px); }
+  55%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+  90%      { transform: translateX(-2px); }
+}
+
+/* Eye toggle button */
+#dev-auth-eye {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  border-radius: 4px;
+}
+#dev-auth-eye:hover { color: var(--text-primary); }
+
+/* Error message */
+.dev-auth-error {
+  font-size: 0.78rem;
+  color: #e53e3e;
+  min-height: 1.1rem;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+}
+
+/* Action buttons row */
+.dev-auth-actions {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* Muted outline variant (Cancel button) */
+.dev-btn-outline-muted {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font-body);
+}
+.dev-btn-outline-muted:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+/* Hint text at bottom */
+.dev-auth-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  width: 100%;
+}
+.dev-auth-hint code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  color: var(--accent);
+}

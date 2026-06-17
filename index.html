@@ -914,6 +914,46 @@
      ║  Features: Add/Edit/Delete Projects · Add Photos · Year Filter   ║
      ╚══════════════════════════════════════════════════════════════════╝ -->
 
+
+<!-- ╔══════════════════════════════════════════════════════════════════╗
+     ║  DEV AUTH MODAL — Password prompt for Developer's Option        ║
+     ╚══════════════════════════════════════════════════════════════════╝ -->
+<div id="dev-auth-modal" role="dialog" aria-modal="true" aria-label="Developer authentication">
+  <div class="dev-auth-box">
+
+    <div class="dev-auth-icon" aria-hidden="true">🔒</div>
+    <h2 class="dev-auth-title">Developer's Option</h2>
+    <p class="dev-auth-subtitle">Enter your password to continue</p>
+
+    <div class="dev-auth-field">
+      <input
+        type="password"
+        id="dev-auth-input"
+        placeholder="Password"
+        autocomplete="current-password"
+        spellcheck="false"
+      />
+      <!-- Show / hide password toggle -->
+      <button id="dev-auth-eye" type="button" aria-label="Toggle password visibility">
+        <!-- Eye icon (password hidden) -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+
+    <p id="dev-auth-error" class="dev-auth-error" role="alert"></p>
+
+    <div class="dev-auth-actions">
+      <button id="dev-auth-cancel" class="dev-btn dev-btn-outline-muted">Cancel</button>
+      <button id="dev-auth-submit" class="dev-btn dev-btn-primary" style="flex:1">Unlock ↗</button>
+    </div>
+
+    <p class="dev-auth-hint">
+      Forgot password? Edit <code>DEV_PASSWORD</code> in <code>js/app.js</code>
+    </p>
+
+  </div>
+</div>
+
 <!-- Backdrop -->
 <div id="dev-panel-backdrop"></div>
 

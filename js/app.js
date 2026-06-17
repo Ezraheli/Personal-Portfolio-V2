@@ -304,6 +304,87 @@ function showToast(msg, type = 'success') {
   toastTimer = setTimeout(() => { devToast.className = ''; }, 3200);
 }
 
+/* ══════════════════════════════════════════════════════════════
+   PASSWORD AUTH
+   ──────────────────────────────────────────────────────────────
+   To change the password: edit DEV_PASSWORD below.
+   That's the only way — intentional, no reset flow.
+   ══════════════════════════════════════════════════════════════ */
+
+// ✏️ CHANGE YOUR PASSWORD HERE ↓
+const DEV_PASSWORD = 'steph2025';
+// ↑ ✏️ CHANGE YOUR PASSWORD HERE
+
+const SESSION_KEY = 'dev_auth_session';   // clears when browser tab closes
+
+/* Returns true if already authenticated this session */
+function isAuthenticated() {
+  return sessionStorage.getItem(SESSION_KEY) === 'granted';
+}
+
+/* ── Password prompt modal ───────────────────────────────────── */
+const authModal       = document.getElementById('dev-auth-modal');
+const authInput       = document.getElementById('dev-auth-input');
+const authSubmitBtn   = document.getElementById('dev-auth-submit');
+const authCancelBtn   = document.getElementById('dev-auth-cancel');
+const authError       = document.getElementById('dev-auth-error');
+const authToggleEye   = document.getElementById('dev-auth-eye');
+
+function openAuthModal() {
+  if (!authModal) return;
+  authModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  if (authInput) { authInput.value = ''; authInput.focus(); }
+  if (authError) authError.textContent = '';
+}
+
+function closeAuthModal() {
+  authModal?.classList.remove('open');
+  document.body.style.overflow = '';
+  devToggleBtn?.classList.remove('active');
+}
+
+/* Show / hide password eye toggle */
+authToggleEye?.addEventListener('click', () => {
+  if (!authInput) return;
+  const isHidden = authInput.type === 'password';
+  authInput.type = isHidden ? 'text' : 'password';
+  authToggleEye.innerHTML = isHidden
+    ? /* eye-off SVG */ `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : /* eye SVG     */ `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  authInput.focus();
+});
+
+/* Validate password */
+function submitPassword() {
+  if (!authInput || !authError) return;
+  const entered = authInput.value;
+
+  if (entered === DEV_PASSWORD) {
+    sessionStorage.setItem(SESSION_KEY, 'granted');
+    closeAuthModal();
+    openDevPanel();
+  } else {
+    authError.textContent = 'Incorrect password. Try again.';
+    authInput.value = '';
+    authInput.focus();
+    /* Shake animation */
+    authInput.classList.add('shake');
+    setTimeout(() => authInput.classList.remove('shake'), 500);
+  }
+}
+
+authSubmitBtn?.addEventListener('click', submitPassword);
+authCancelBtn?.addEventListener('click', closeAuthModal);
+authInput?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitPassword();
+  if (e.key === 'Escape') closeAuthModal();
+});
+/* Click outside modal box to cancel */
+authModal?.addEventListener('click', e => {
+  if (e.target === authModal) closeAuthModal();
+});
+
 /* ── Panel open / close ──────────────────────────────────────── */
 const devToggleBtn  = document.getElementById('dev-toggle-btn');
 const devPanel      = document.getElementById('dev-panel');
@@ -326,9 +407,18 @@ function closeDevPanel() {
   document.body.style.overflow = '';
 }
 
-devToggleBtn?.addEventListener('click', () =>
-  devPanel?.classList.contains('open') ? closeDevPanel() : openDevPanel()
-);
+/* Gate the toggle button behind auth */
+devToggleBtn?.addEventListener('click', () => {
+  if (devPanel?.classList.contains('open')) {
+    closeDevPanel();
+  } else if (isAuthenticated()) {
+    openDevPanel();           // already unlocked this session — go straight in
+  } else {
+    devToggleBtn.classList.add('active');
+    openAuthModal();          // ask for password first
+  }
+});
+
 devPanelClose?.addEventListener('click', closeDevPanel);
 devBackdrop?.addEventListener('click', closeDevPanel);
 
