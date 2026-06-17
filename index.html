@@ -1059,6 +1059,18 @@
 
   </div><!-- /dev-panel-body -->
 
+
+  <!-- ─── DATA TOOLS ──────────────────────────────────────────── -->
+  <div style="padding:1rem 1.5rem;border-top:1px solid var(--border);background:var(--bg-secondary);flex-shrink:0;display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+    <span style="font-family:var(--font-mono);font-size:0.65rem;font-weight:700;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;flex-shrink:0;">💾 Data:</span>
+    <button id="dev-export-btn" class="dev-btn dev-btn-edit dev-btn-sm" title="Export all data to JSON file">⬇ Export</button>
+    <label class="dev-btn dev-btn-edit dev-btn-sm" title="Import from JSON backup" style="cursor:pointer;">
+      ⬆ Import
+      <input type="file" id="dev-import-input" accept=".json" style="display:none;">
+    </label>
+    <button id="dev-clear-btn" class="dev-btn dev-btn-danger dev-btn-sm" title="Clear all saved data">🗑 Clear All</button>
+  </div>
+
 </div><!-- /dev-panel -->
 
 <!-- Toast notification -->

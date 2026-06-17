@@ -1561,3 +1561,6 @@ button { cursor: pointer; font-family: inherit; }
 }
 #dev-toast.success::before { content: '✓  '; color: #22c55e; }
 #dev-toast.error::before   { content: '✕  '; color: #e53e3e; }
+
+/* ── Dev panel footer (data tools) ── */
+#dev-panel { flex-direction: column; } /* ensure footer sticks to bottom */
