@@ -1,81 +1,36 @@
 /* ============================================================
    STEPHANIE LOSABIA — Personal Portfolio V2
    js/app.js  |  Full Interactivity + Developer's Option Panel
-   Storage: Firebase Firestore (cross-device sync)
+   Storage: localStorage (no backend needed)
    ============================================================ */
 
 'use strict';
 
 /* ══════════════════════════════════════════════════════════════
-   FIREBASE CONFIGURATION
-   ✏️ Replace the values below with YOUR Firebase project config.
-   Get it from: Firebase Console → Project Settings → Your Apps → SDK setup
+   STORAGE KEYS
    ══════════════════════════════════════════════════════════════ */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import {
-  getFirestore, doc, getDoc, setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAOMjvA_LwVVsgtC3Odp0N58B6rjbEZdd8",
-  authDomain: "portfolio-stef.firebaseapp.com",
-  projectId: "portfolio-stef",
-  storageBucket: "portfolio-stef.firebasestorage.app",
-  messagingSenderId: "954378261124",
-  appId: "1:954378261124:web:81141fcb7efc2844d6e8d1",
-  measurementId: "G-Y1779FJYV5"
+const STORAGE = {
+  PROJECTS : 'portfolio_projects_v2',
+  GALLERY  : 'portfolio_gallery_v2',
+  THEME    : 'portfolio-theme',
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-const firebaseApp = initializeApp(firebaseConfig);
-const db          = getFirestore(firebaseApp);
-
-/* Firestore document paths */
-const DOC_PROJECTS = doc(db, 'portfolio', 'projects');
-const DOC_GALLERY  = doc(db, 'portfolio', 'gallery');
-
-/* ── Firestore helpers ─────────────────────────────────────── */
-async function fsGet(docRef) {
-  try {
-    const snap = await getDoc(docRef);
-    return snap.exists() ? snap.data().items : null;
-  } catch (err) {
-    console.warn('Firestore read error:', err);
-    return null;
-  }
-}
-
-async function fsSet(docRef, items) {
-  try {
-    await setDoc(docRef, { items });
-  } catch (err) {
-    console.warn('Firestore write error:', err);
-  }
-}
-
 /* ══════════════════════════════════════════════════════════════
-   THEME — kept in localStorage (per-device preference is fine)
+   1. THEME TOGGLE
    ══════════════════════════════════════════════════════════════ */
-const THEME_KEY   = 'portfolio-theme';
 const themeToggle = document.getElementById('theme-toggle');
 const iconSun     = document.querySelector('.icon-sun');
 const iconMoon    = document.querySelector('.icon-moon');
 
 function setTheme(dark) {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+  localStorage.setItem(STORAGE.THEME, dark ? 'dark' : 'light');
   if (iconSun)  iconSun.style.display  = dark ? 'none'  : 'block';
   if (iconMoon) iconMoon.style.display = dark ? 'block' : 'none';
 }
 
 (function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY);
+  const saved = localStorage.getItem(STORAGE.THEME);
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   setTheme(saved === 'dark' || (!saved && prefersDark));
 })();
@@ -140,6 +95,7 @@ window.addEventListener('scroll', () => {
    5. ACCORDION
    ══════════════════════════════════════════════════════════════ */
 document.querySelectorAll('.accordion-trigger').forEach(trigger => {
+  // Respect initial open state from HTML
   if (trigger.getAttribute('aria-expanded') === 'true') {
     trigger.nextElementSibling?.classList.add('open');
   }
@@ -250,7 +206,12 @@ function getActiveYears() {
 function buildYearFilterBar(activeYear = 'All') {
   if (!galleryFilterBar) return;
   const years = getActiveYears();
-  if (years.length <= 2) { galleryFilterBar.style.display = 'none'; return; }
+
+  // Only show the bar if there's more than one year
+  if (years.length <= 2) { // 'All' + 1 year = no point filtering
+    galleryFilterBar.style.display = 'none';
+    return;
+  }
   galleryFilterBar.style.display = '';
   galleryFilterBar.innerHTML = '<span class="gallery-filter-label">Filter:</span>';
   years.forEach(year => {
@@ -327,8 +288,8 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 
 /* ══════════════════════════════════════════════════════════════
    ██████████████████████████████████████████████████████████████
-   13. DEVELOPER'S OPTION PANEL
-   Storage: Firebase Firestore (syncs across ALL devices)
+   13. DEVELOPER'S OPTION PANEL  —  Fully persistent via
+       localStorage. No backend, no Firebase required.
    ██████████████████████████████████████████████████████████████
    ══════════════════════════════════════════════════════════════ */
 
@@ -351,18 +312,20 @@ function showToast(msg, type = 'success') {
 const DEV_PASSWORD = 'steph2025';
 // ↑ ✏️ CHANGE YOUR PASSWORD HERE
 
-const SESSION_KEY = 'dev_auth_session';
+const SESSION_KEY = 'dev_auth_session';   // clears when browser tab closes
 
+/* Returns true if already authenticated this session */
 function isAuthenticated() {
   return sessionStorage.getItem(SESSION_KEY) === 'granted';
 }
 
-const authModal     = document.getElementById('dev-auth-modal');
-const authInput     = document.getElementById('dev-auth-input');
-const authSubmitBtn = document.getElementById('dev-auth-submit');
-const authCancelBtn = document.getElementById('dev-auth-cancel');
-const authError     = document.getElementById('dev-auth-error');
-const authToggleEye = document.getElementById('dev-auth-eye');
+/* ── Password prompt modal ───────────────────────────────────── */
+const authModal       = document.getElementById('dev-auth-modal');
+const authInput       = document.getElementById('dev-auth-input');
+const authSubmitBtn   = document.getElementById('dev-auth-submit');
+const authCancelBtn   = document.getElementById('dev-auth-cancel');
+const authError       = document.getElementById('dev-auth-error');
+const authToggleEye   = document.getElementById('dev-auth-eye');
 
 function openAuthModal() {
   if (!authModal) return;
@@ -378,19 +341,23 @@ function closeAuthModal() {
   devToggleBtn?.classList.remove('active');
 }
 
+/* Show / hide password eye toggle */
 authToggleEye?.addEventListener('click', () => {
   if (!authInput) return;
   const isHidden = authInput.type === 'password';
   authInput.type = isHidden ? 'text' : 'password';
   authToggleEye.innerHTML = isHidden
-    ? `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
-    : `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    ? /* eye-off SVG */ `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+    : /* eye SVG     */ `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
   authInput.focus();
 });
 
+/* Validate password */
 function submitPassword() {
   if (!authInput || !authError) return;
-  if (authInput.value === DEV_PASSWORD) {
+  const entered = authInput.value;
+
+  if (entered === DEV_PASSWORD) {
     sessionStorage.setItem(SESSION_KEY, 'granted');
     closeAuthModal();
     openDevPanel();
@@ -398,6 +365,7 @@ function submitPassword() {
     authError.textContent = 'Incorrect password. Try again.';
     authInput.value = '';
     authInput.focus();
+    /* Shake animation */
     authInput.classList.add('shake');
     setTimeout(() => authInput.classList.remove('shake'), 500);
   }
@@ -409,7 +377,10 @@ authInput?.addEventListener('keydown', e => {
   if (e.key === 'Enter') submitPassword();
   if (e.key === 'Escape') closeAuthModal();
 });
-authModal?.addEventListener('click', e => { if (e.target === authModal) closeAuthModal(); });
+/* Click outside modal box to cancel */
+authModal?.addEventListener('click', e => {
+  if (e.target === authModal) closeAuthModal();
+});
 
 /* ── Panel open / close ──────────────────────────────────────── */
 const devToggleBtn  = document.getElementById('dev-toggle-btn');
@@ -433,14 +404,15 @@ function closeDevPanel() {
   document.body.style.overflow = '';
 }
 
+/* Gate the toggle button behind auth */
 devToggleBtn?.addEventListener('click', () => {
   if (devPanel?.classList.contains('open')) {
     closeDevPanel();
   } else if (isAuthenticated()) {
-    openDevPanel();
+    openDevPanel();           // already unlocked this session — go straight in
   } else {
     devToggleBtn.classList.add('active');
-    openAuthModal();
+    openAuthModal();          // ask for password first
   }
 });
 
@@ -461,10 +433,15 @@ document.querySelectorAll('.dev-tab').forEach(tab => {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   STORAGE HELPERS  →  NOW FIRESTORE
+   STORAGE HELPERS
    ══════════════════════════════════════════════════════════════ */
 
-async function saveProjectsToStorage() {
+function loadSavedProjects() {
+  try { return JSON.parse(localStorage.getItem(STORAGE.PROJECTS)) || null; }
+  catch { return null; }
+}
+
+function saveProjectsToStorage() {
   const cards = Array.from(document.querySelectorAll('#projects .project-card'));
   const data = cards.map(card => ({
     img      : card.querySelector('.project-img')?.src || '',
@@ -475,10 +452,15 @@ async function saveProjectsToStorage() {
     link     : card.querySelector('.project-overlay a')?.getAttribute('href') || '#',
     hidden   : card.classList.contains('hidden') || card.style.display === 'none',
   }));
-  await fsSet(DOC_PROJECTS, data);
+  localStorage.setItem(STORAGE.PROJECTS, JSON.stringify(data));
 }
 
-async function saveGalleryToStorage() {
+function loadSavedGallery() {
+  try { return JSON.parse(localStorage.getItem(STORAGE.GALLERY)) || null; }
+  catch { return null; }
+}
+
+function saveGalleryToStorage() {
   const items = Array.from(document.querySelectorAll('#masonry-grid .masonry-item'));
   const data = items.map(item => {
     const img = item.querySelector('img');
@@ -488,15 +470,15 @@ async function saveGalleryToStorage() {
       year : img?.getAttribute('data-year') || new Date().getFullYear().toString(),
     };
   });
-  await fsSet(DOC_GALLERY, data);
+  localStorage.setItem(STORAGE.GALLERY, JSON.stringify(data));
 }
 
 /* ══════════════════════════════════════════════════════════════
-   HYDRATE FROM FIRESTORE ON PAGE LOAD
+   HYDRATE FROM localStorage ON PAGE LOAD
    ══════════════════════════════════════════════════════════════ */
-async function hydrateFromStorage() {
+function hydrateFromStorage() {
   // ── Projects ────────────────────────────────────────────────
-  const savedProjects = await fsGet(DOC_PROJECTS);
+  const savedProjects = loadSavedProjects();
   if (savedProjects && savedProjects.length > 0) {
     const grid = document.querySelector('#projects .projects-grid');
     if (grid) {
@@ -523,7 +505,7 @@ async function hydrateFromStorage() {
   }
 
   // ── Gallery ──────────────────────────────────────────────────
-  const savedGallery = await fsGet(DOC_GALLERY);
+  const savedGallery = loadSavedGallery();
   if (savedGallery && savedGallery.length > 0) {
     const grid = document.getElementById('masonry-grid');
     if (grid) {
@@ -582,9 +564,9 @@ function fileToBase64(file) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   IMAGE PREVIEW WIRING
+   IMAGE PREVIEW WIRING (path input + file browse)
    ══════════════════════════════════════════════════════════════ */
-function wireImgPreview(fileInputId, textInputId, previewId) {
+function wireImgPreview(fileInputId, textInputId, previewId, pathPrefix = '') {
   const fileInput = document.getElementById(fileInputId);
   const textInput = document.getElementById(textInputId);
   const preview   = document.getElementById(previewId);
@@ -594,7 +576,7 @@ function wireImgPreview(fileInputId, textInputId, previewId) {
     preview.innerHTML = `<img src="${src}" alt="preview"
       onerror="this.parentElement.innerHTML='<span style=\\'color:#e53e3e;font-size:0.75rem\\'>Image not found — check the path</span>'">
       <input type='file' id='${fileInputId}' accept='image/*' style='position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;'>`;
-    wireImgPreview(fileInputId, textInputId, previewId);
+    wireImgPreview(fileInputId, textInputId, previewId, pathPrefix);
   }
 
   fileInput.addEventListener('change', async () => {
@@ -622,7 +604,7 @@ wireImgPreview('ng-img-file', 'ng-img', 'ng-img-preview');
    PROJECT MANAGER
    ══════════════════════════════════════════════════════════════ */
 
-document.getElementById('np-add-btn')?.addEventListener('click', async () => {
+document.getElementById('np-add-btn')?.addEventListener('click', () => {
   const img      = document.getElementById('np-img').value.trim();
   const category = document.getElementById('np-category').value;
   const title    = document.getElementById('np-title').value.trim();
@@ -643,8 +625,7 @@ document.getElementById('np-add-btn')?.addEventListener('click', async () => {
 
   requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('visible')));
 
-  showToast('Saving…');
-  await saveProjectsToStorage();
+  saveProjectsToStorage();
 
   ['np-img', 'np-title', 'np-desc', 'np-link'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
@@ -656,7 +637,7 @@ document.getElementById('np-add-btn')?.addEventListener('click', async () => {
   wireImgPreview('np-img-file', 'np-img', 'np-img-preview');
 
   renderProjectList();
-  showToast(`"${title}" added and saved to all devices!`);
+  showToast(`"${title}" added and saved!`);
 });
 
 /* ── Render project list in panel ────────────────────────────── */
@@ -737,18 +718,18 @@ function renderProjectList() {
       btn.currentTarget.textContent = open ? '✕' : '✏️';
     });
 
-    row.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+    row.querySelector('[data-action="delete"]').addEventListener('click', () => {
       const name = card.querySelector('.project-title')?.textContent || 'Project';
       card.remove();
-      await saveProjectsToStorage();
+      saveProjectsToStorage();
       renderProjectList();
-      showToast(`"${name}" deleted from all devices.`);
+      showToast(`"${name}" deleted.`);
     });
 
-    row.querySelector('.ep-save').addEventListener('click', async () => {
+    row.querySelector('.ep-save').addEventListener('click', () => {
       const f = document.getElementById(`dev-ef-${i}`);
       if (!f) return;
-      const newImg   = f.querySelector('.ep-img').value.trim();
+      const newImg  = f.querySelector('.ep-img').value.trim();
       const newTitle = f.querySelector('.ep-title').value.trim();
       const newCat   = f.querySelector('.ep-cat').value.trim();
       const newDesc  = f.querySelector('.ep-desc').value.trim();
@@ -761,10 +742,10 @@ function renderProjectList() {
       if (descEl)  descEl.textContent   = newDesc;
       if (linkEl)  { linkEl.textContent = newBtn; linkEl.href = newLink; }
 
-      await saveProjectsToStorage();
+      saveProjectsToStorage();
       f.classList.remove('open');
       renderProjectList();
-      showToast(`"${newTitle}" updated on all devices!`);
+      showToast(`"${newTitle}" updated and saved!`);
     });
 
     list.appendChild(row);
@@ -775,7 +756,7 @@ function renderProjectList() {
    GALLERY MANAGER
    ══════════════════════════════════════════════════════════════ */
 
-document.getElementById('ng-add-btn')?.addEventListener('click', async () => {
+document.getElementById('ng-add-btn')?.addEventListener('click', () => {
   const src  = document.getElementById('ng-img').value.trim();
   const alt  = document.getElementById('ng-alt').value.trim() || 'Gallery photo';
   const year = document.getElementById('ng-year').value.trim() || String(new Date().getFullYear());
@@ -787,8 +768,7 @@ document.getElementById('ng-add-btn')?.addEventListener('click', async () => {
 
   grid.appendChild(buildGalleryItemEl({ src, alt, year }));
 
-  showToast('Saving…');
-  await saveGalleryToStorage();
+  saveGalleryToStorage();
 
   document.getElementById('ng-img').value = '';
   document.getElementById('ng-alt').value = '';
@@ -801,7 +781,7 @@ document.getElementById('ng-add-btn')?.addEventListener('click', async () => {
   buildDevYearFilter();
   renderGalleryList();
   rebuildGalleryItems();
-  showToast(`Photo added to gallery (${year}) on all devices!`);
+  showToast(`Photo added to gallery (${year}) and saved!`);
 });
 
 /* ── Render gallery list in panel ────────────────────────────── */
@@ -835,14 +815,14 @@ function renderGalleryList() {
         <button class="dev-btn dev-btn-danger dev-btn-sm" title="Remove">🗑</button>
       </div>`;
 
-    row.querySelector('.dev-btn-danger').addEventListener('click', async () => {
+    row.querySelector('.dev-btn-danger').addEventListener('click', () => {
       item.remove();
-      await saveGalleryToStorage();
+      saveGalleryToStorage();
       buildYearFilterBar();
       buildDevYearFilter();
       renderGalleryList();
       rebuildGalleryItems();
-      showToast('Photo removed from all devices.');
+      showToast('Photo removed and saved.');
     });
     list.appendChild(row);
   });
@@ -867,12 +847,14 @@ function buildDevYearFilter() {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   EXPORT / IMPORT  (still works as a local JSON backup)
+   EXPORT / IMPORT
    ══════════════════════════════════════════════════════════════ */
-document.getElementById('dev-export-btn')?.addEventListener('click', async () => {
-  const projects = await fsGet(DOC_PROJECTS) || [];
-  const gallery  = await fsGet(DOC_GALLERY)  || [];
-  const data = { exported: new Date().toISOString(), projects, gallery };
+document.getElementById('dev-export-btn')?.addEventListener('click', () => {
+  const data = {
+    exported  : new Date().toISOString(),
+    projects  : loadSavedProjects() || [],
+    gallery   : loadSavedGallery()  || [],
+  };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
@@ -887,17 +869,17 @@ document.getElementById('dev-import-input')?.addEventListener('change', async e 
   try {
     const text = await file.text();
     const data = JSON.parse(text);
-    if (data.projects) await fsSet(DOC_PROJECTS, data.projects);
-    if (data.gallery)  await fsSet(DOC_GALLERY,  data.gallery);
-    showToast('Data imported to all devices! Reloading…');
+    if (data.projects) localStorage.setItem(STORAGE.PROJECTS, JSON.stringify(data.projects));
+    if (data.gallery)  localStorage.setItem(STORAGE.GALLERY,  JSON.stringify(data.gallery));
+    showToast('Data imported! Reloading…');
     setTimeout(() => location.reload(), 1200);
   } catch { showToast('Invalid JSON file.', 'error'); }
 });
 
-document.getElementById('dev-clear-btn')?.addEventListener('click', async () => {
-  if (!confirm('Clear ALL saved projects and gallery data for ALL devices? This cannot be undone.')) return;
-  await fsSet(DOC_PROJECTS, []);
-  await fsSet(DOC_GALLERY,  []);
-  showToast('All data cleared on all devices. Reloading…');
+document.getElementById('dev-clear-btn')?.addEventListener('click', () => {
+  if (!confirm('Clear ALL saved projects and gallery data? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE.PROJECTS);
+  localStorage.removeItem(STORAGE.GALLERY);
+  showToast('All data cleared. Reloading…');
   setTimeout(() => location.reload(), 1200);
 });
