@@ -163,6 +163,254 @@ if (showMoreBtnSw && hiddenProjectsContainerSw && projectsGridSw) {
 }
 updateSoftwareShowMoreVisibility();
 
+
+/* ══════════════════════════════════════════════════════════════
+   PUBMATS GALLERY — Each box rotates independently every 2s
+   Each of the 6 positions shows unique images with staggered timing
+   ══════════════════════════════════════════════════════════════ */
+(function initPubmatGallery() {
+  const grid = document.getElementById('pubmat-grid');
+  const dotsWrap = document.getElementById('pubmat-grid-dots');
+  const prevBtn = document.getElementById('pubmat-grid-prev');
+  const nextBtn = document.getElementById('pubmat-grid-next');
+  const section = document.getElementById('pubmats');
+  
+  if (!grid || !dotsWrap) return;
+
+  // ── Define all pubmat images ──
+  // ✏️ EDIT: Add/remove images here
+  const allImages = [
+    { src: './assets/pubmats/Bench 0.2.png', alt: 'Bench Yelling' },
+    { src: './assets/pubmats/ByteSize.png', alt: 'ByteSize Quizbee' },
+    { src: './assets/pubmats/CODM.png', alt: 'Call of Duty: Mobile' },
+    { src: './assets/pubmats/Hugyaw.png', alt: 'Hugyaw Iceans' },
+    { src: './assets/pubmats/Live.png', alt: 'Live MTV Spoof' },
+    { src: './assets/pubmats/ML.png', alt: 'Mobile Legends' },
+    { src: './assets/pubmats/Pickle Ball.png', alt: 'Pickle Ball' },
+    { src: './assets/pubmats/Rj45.png', alt: 'RJ45' },
+    { src: './assets/pubmats/SDE.png', alt: 'Same Day Edit' },
+    { src: './assets/pubmats/Speed Type.png', alt: 'Speed Type' },
+    // ✏️ ADD MORE IMAGES HERE
+  ];
+
+  const BOX_COUNT = 6; // Number of boxes to display
+  const ROTATION_INTERVAL = 2000; // 2 seconds per rotation
+  const STAGGER_DELAY = 300; // Stagger each box's rotation by 300ms
+  
+  let currentIndices = []; // Tracks which image index each box is showing
+  let timer = null;
+  let isPaused = false;
+
+  // Initialize with first 6 images
+  function initIndices() {
+    // Start with images 0-5
+    for (let i = 0; i < BOX_COUNT; i++) {
+      currentIndices[i] = i % allImages.length;
+    }
+  }
+  initIndices();
+
+  // Get next available image index (ensures no duplicates)
+  function getNextIndexForBox(boxIndex) {
+    const currentImage = currentIndices[boxIndex];
+    // Get all currently displayed images
+    const displayedImages = new Set(currentIndices);
+    
+    // Try to find the next image that's not currently displayed
+    // Start from the next index after current
+    let nextIndex = (currentImage + 1) % allImages.length;
+    let attempts = 0;
+    
+    // If we have more images than boxes, find a unique one
+    if (allImages.length > BOX_COUNT) {
+      while (displayedImages.has(nextIndex) && attempts < allImages.length) {
+        nextIndex = (nextIndex + 1) % allImages.length;
+        attempts++;
+      }
+    } else {
+      // If we have fewer or equal images than boxes, just rotate sequentially
+      nextIndex = (currentImage + 1) % allImages.length;
+    }
+    
+    return nextIndex;
+  }
+
+  // Render the grid
+  function renderGrid() {
+    grid.innerHTML = '';
+    
+    for (let i = 0; i < BOX_COUNT; i++) {
+      const imgData = allImages[currentIndices[i % allImages.length]];
+      const item = document.createElement('div');
+      item.className = 'pubmat-grid-item';
+      item.dataset.boxIndex = i;
+      
+      // Staggered animation delay
+      const delay = (i * 0.08);
+      item.style.animationDelay = `${delay}s`;
+      item.style.animation = 'pubmatFadeIn 0.5s ease forwards';
+      item.style.animationDelay = `${delay}s`;
+      
+      item.innerHTML = `
+        <img src="${imgData.src}" alt="${imgData.alt}" loading="lazy" />
+        <div class="pubmat-overlay">
+          <span>${imgData.alt}</span>
+        </div>
+      `;
+      
+      grid.appendChild(item);
+    }
+  }
+
+  // Rotate one specific box (staggered)
+  function rotateBox(index) {
+    if (isPaused) return;
+    
+    const boxIndex = index % BOX_COUNT;
+    const nextIdx = getNextIndexForBox(boxIndex);
+    currentIndices[boxIndex] = nextIdx;
+    
+    // Update just this box with animation
+    const items = grid.querySelectorAll('.pubmat-grid-item');
+    if (items[boxIndex]) {
+      const imgData = allImages[nextIdx];
+      const img = items[boxIndex].querySelector('img');
+      const overlay = items[boxIndex].querySelector('.pubmat-overlay span');
+      
+      if (img) {
+        // Fade out, change image, fade in
+        items[boxIndex].style.opacity = '0';
+        items[boxIndex].style.transition = 'opacity 0.3s ease';
+        
+        setTimeout(() => {
+          img.src = imgData.src;
+          img.alt = imgData.alt;
+          if (overlay) overlay.textContent = imgData.alt;
+          items[boxIndex].style.opacity = '1';
+        }, 300);
+      }
+    }
+  }
+
+  // Rotate all boxes in staggered sequence
+  function rotateAllBoxes() {
+    if (isPaused) return;
+    
+    // Each box rotates with a staggered delay
+    for (let i = 0; i < BOX_COUNT; i++) {
+      setTimeout(() => {
+        rotateBox(i);
+      }, i * STAGGER_DELAY);
+    }
+    
+    updateDots();
+  }
+
+  // ── Dots system ──
+  // Each dot represents a "cycle" of all boxes rotating
+  function updateDots() {
+    const totalCycles = Math.ceil(allImages.length / BOX_COUNT);
+    const currentCycle = Math.floor(currentIndices[0] / BOX_COUNT) % totalCycles;
+    
+    dotsWrap.innerHTML = '';
+    if (totalCycles > 1) {
+      for (let i = 0; i < totalCycles; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'pubmat-grid-dot' + (i === currentCycle ? ' active' : '');
+        dot.setAttribute('aria-label', `Cycle ${i + 1}`);
+        dot.dataset.cycle = i;
+        dot.addEventListener('click', () => goToCycle(i));
+        dotsWrap.appendChild(dot);
+      }
+      dotsWrap.style.display = 'flex';
+    } else {
+      dotsWrap.style.display = 'none';
+    }
+  }
+
+  function goToCycle(cycle) {
+    if (isPaused) return;
+    const startIndex = cycle * BOX_COUNT;
+    for (let i = 0; i < BOX_COUNT; i++) {
+      const imgIndex = (startIndex + i) % allImages.length;
+      currentIndices[i] = imgIndex;
+    }
+    renderGrid();
+    updateDots();
+    restartAutoplay();
+  }
+
+  function nextCycle() {
+    const totalCycles = Math.ceil(allImages.length / BOX_COUNT);
+    const currentCycle = Math.floor(currentIndices[0] / BOX_COUNT) % totalCycles;
+    goToCycle((currentCycle + 1) % totalCycles);
+  }
+
+  function prevCycle() {
+    const totalCycles = Math.ceil(allImages.length / BOX_COUNT);
+    const currentCycle = Math.floor(currentIndices[0] / BOX_COUNT) % totalCycles;
+    goToCycle((currentCycle - 1 + totalCycles) % totalCycles);
+  }
+
+  function startAutoplay() {
+    if (allImages.length <= BOX_COUNT) return;
+    timer = setInterval(rotateAllBoxes, ROTATION_INTERVAL);
+  }
+
+  function stopAutoplay() {
+    clearInterval(timer);
+  }
+
+  function restartAutoplay() {
+    stopAutoplay();
+    startAutoplay();
+  }
+
+  // ── Event listeners ──
+  prevBtn?.addEventListener('click', () => {
+    stopAutoplay();
+    prevCycle();
+    restartAutoplay();
+  });
+
+  nextBtn?.addEventListener('click', () => {
+    stopAutoplay();
+    nextCycle();
+    restartAutoplay();
+  });
+
+  // Pause on hover
+  const pubmatSection = document.getElementById('pubmats');
+  if (pubmatSection) {
+    pubmatSection.addEventListener('mouseenter', () => {
+      isPaused = true;
+      stopAutoplay();
+    });
+    pubmatSection.addEventListener('mouseleave', () => {
+      isPaused = false;
+      startAutoplay();
+    });
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (!pubmatSection) return;
+    const rect = pubmatSection.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (!isVisible) return;
+    if (e.key === 'ArrowLeft') { stopAutoplay(); prevCycle(); restartAutoplay(); }
+    if (e.key === 'ArrowRight') { stopAutoplay(); nextCycle(); restartAutoplay(); }
+  });
+
+  // ── Init ──
+  renderGrid();
+  updateDots();
+  if (allImages.length > BOX_COUNT) {
+    startAutoplay();
+  }
+})();
+
+
 /* ══════════════════════════════════════════════════════════════
    7. GALLERY LIGHTBOX
    ══════════════════════════════════════════════════════════════ */

@@ -65,6 +65,7 @@
   /* Section padding: reduced for smaller screens */
   #about,
   #projects,
+  #pubmats,
   #gallery,
   #contact { padding: 3.5rem 0; }
 
@@ -140,8 +141,12 @@
   /* Section padding: further reduced — FIX: was 5rem which was LARGER than 768px value (3.5rem) */
   #about,
   #projects,
+  #pubmats,
   #gallery,
   #contact { padding: 3rem 0; }
+
+  /* Pubmat carousel: smaller arrows on small screens */
+  .pubmat-arrow { width: 32px; height: 32px; font-size: 1.2rem; }
 
   /* Hero */
   #hero {
