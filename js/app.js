@@ -10,9 +10,10 @@
    STORAGE KEYS
    ══════════════════════════════════════════════════════════════ */
 const STORAGE = {
-  PROJECTS : 'portfolio_projects_v2',
-  GALLERY  : 'portfolio_gallery_v2',
-  THEME    : 'portfolio-theme',
+  PROJECTS          : 'portfolio_projects_v2',
+  SOFTWARE_PROJECTS : 'portfolio_software_projects_v2',
+  GALLERY           : 'portfolio_gallery_v2',
+  THEME             : 'portfolio-theme',
 };
 
 /* ══════════════════════════════════════════════════════════════
@@ -132,6 +133,35 @@ if (showMoreBtn && hiddenProjectsContainer && projectsGrid) {
     showMoreBtn.textContent = showing ? 'Show More ↓' : 'Show Less ↑';
   });
 }
+
+/* ── Software Projects — same Show More / Less behavior ────────── */
+const showMoreBtnSw             = document.getElementById('show-more-btn-sw');
+const hiddenProjectsContainerSw = document.getElementById('hiddenSoftwareProjects');
+const projectsGridSw            = document.querySelector('#software-projects .projects-grid');
+
+let hiddenCardsSw = [];
+
+/* Only reveal the Show More button once there's actually something hidden to show */
+function updateSoftwareShowMoreVisibility() {
+  const wrap = document.getElementById('show-more-wrap-sw');
+  const grid = document.querySelector('#software-projects .projects-grid');
+  if (!wrap || !grid) return;
+  const hasHidden = grid.querySelectorAll('.project-card.hidden').length > 0;
+  wrap.style.display = hasHidden ? '' : 'none';
+}
+
+if (showMoreBtnSw && hiddenProjectsContainerSw && projectsGridSw) {
+  hiddenCardsSw = Array.from(hiddenProjectsContainerSw.querySelectorAll('.project-card'));
+  hiddenCardsSw.forEach(c => { c.style.display = 'none'; projectsGridSw.appendChild(c); });
+  hiddenProjectsContainerSw.remove();
+
+  showMoreBtnSw.addEventListener('click', () => {
+    const showing = hiddenCardsSw[0]?.style.display !== 'none';
+    hiddenCardsSw.forEach(c => { c.style.display = showing ? 'none' : 'flex'; });
+    showMoreBtnSw.textContent = showing ? 'Show More ↓' : 'Show Less ↑';
+  });
+}
+updateSoftwareShowMoreVisibility();
 
 /* ══════════════════════════════════════════════════════════════
    7. GALLERY LIGHTBOX
@@ -394,6 +424,7 @@ function openDevPanel() {
   devToggleBtn?.classList.add('active');
   document.body.style.overflow = 'hidden';
   renderProjectList();
+  renderSoftwareProjectList();
   renderGalleryList();
   buildDevYearFilter();
 }
@@ -429,6 +460,7 @@ document.querySelectorAll('.dev-tab').forEach(tab => {
     document.getElementById(`dev-pane-${tab.dataset.tab}`)?.classList.add('active');
     if (tab.dataset.tab === 'gallery') { renderGalleryList(); buildDevYearFilter(); }
     if (tab.dataset.tab === 'projects') renderProjectList();
+    if (tab.dataset.tab === 'software') renderSoftwareProjectList();
   });
 });
 
@@ -453,6 +485,25 @@ function saveProjectsToStorage() {
     hidden   : card.classList.contains('hidden') || card.style.display === 'none',
   }));
   localStorage.setItem(STORAGE.PROJECTS, JSON.stringify(data));
+}
+
+function loadSavedSoftwareProjects() {
+  try { return JSON.parse(localStorage.getItem(STORAGE.SOFTWARE_PROJECTS)) || null; }
+  catch { return null; }
+}
+
+function saveSoftwareProjectsToStorage() {
+  const cards = Array.from(document.querySelectorAll('#software-projects .project-card'));
+  const data = cards.map(card => ({
+    img      : card.querySelector('.project-img')?.src || '',
+    category : card.querySelector('.project-category')?.textContent || '',
+    title    : card.querySelector('.project-title')?.textContent || '',
+    desc     : card.querySelector('.project-desc')?.textContent || '',
+    btnLabel : card.querySelector('.project-overlay a')?.textContent?.trim() || 'Show Details',
+    link     : card.querySelector('.project-overlay a')?.getAttribute('href') || '#',
+    hidden   : card.classList.contains('hidden') || card.style.display === 'none',
+  }));
+  localStorage.setItem(STORAGE.SOFTWARE_PROJECTS, JSON.stringify(data));
 }
 
 function loadSavedGallery() {
@@ -501,6 +552,34 @@ function hydrateFromStorage() {
           newBtn.textContent = showing ? 'Show More ↓' : 'Show Less ↑';
         });
       }
+    }
+  }
+
+  // ── Software Projects ───────────────────────────────────────
+  const savedSoftwareProjects = loadSavedSoftwareProjects();
+  if (savedSoftwareProjects && savedSoftwareProjects.length > 0) {
+    const gridSw = document.querySelector('#software-projects .projects-grid');
+    if (gridSw) {
+      gridSw.querySelectorAll('.project-card').forEach(c => c.remove());
+      document.getElementById('hiddenSoftwareProjects')?.remove();
+
+      savedSoftwareProjects.forEach(p => {
+        const card = buildProjectCardEl(p);
+        if (p.hidden) { card.classList.add('hidden'); card.style.display = 'none'; }
+        gridSw.appendChild(card);
+      });
+
+      const newHiddenCardsSw = Array.from(gridSw.querySelectorAll('.project-card.hidden'));
+      if (showMoreBtnSw && newHiddenCardsSw.length) {
+        const newBtnSw = showMoreBtnSw.cloneNode(true);
+        showMoreBtnSw.parentNode?.replaceChild(newBtnSw, showMoreBtnSw);
+        newBtnSw.addEventListener('click', () => {
+          const showing = newHiddenCardsSw[0]?.style.display !== 'none';
+          newHiddenCardsSw.forEach(c => { c.style.display = showing ? 'none' : 'flex'; });
+          newBtnSw.textContent = showing ? 'Show More ↓' : 'Show Less ↑';
+        });
+      }
+      updateSoftwareShowMoreVisibility();
     }
   }
 
@@ -598,6 +677,7 @@ function wireImgPreview(fileInputId, textInputId, previewId, pathPrefix = '') {
 }
 
 wireImgPreview('np-img-file', 'np-img', 'np-img-preview');
+wireImgPreview('nsp-img-file', 'nsp-img', 'nsp-img-preview');
 wireImgPreview('ng-img-file', 'ng-img', 'ng-img-preview');
 
 /* ══════════════════════════════════════════════════════════════
@@ -637,6 +717,44 @@ document.getElementById('np-add-btn')?.addEventListener('click', () => {
   wireImgPreview('np-img-file', 'np-img', 'np-img-preview');
 
   renderProjectList();
+  showToast(`"${title}" added and saved!`);
+});
+
+/* ── Software Projects: add new ─────────────────────────────── */
+document.getElementById('nsp-add-btn')?.addEventListener('click', () => {
+  const img      = document.getElementById('nsp-img').value.trim();
+  const category = document.getElementById('nsp-category').value;
+  const title    = document.getElementById('nsp-title').value.trim();
+  const desc     = document.getElementById('nsp-desc').value.trim();
+  const btnLabel = document.getElementById('nsp-btn-label').value.trim() || 'Show Details';
+  const link     = document.getElementById('nsp-link').value.trim() || '#';
+  const hidden   = document.getElementById('nsp-visibility').value === 'hidden';
+
+  if (!title) { showToast('Please enter a project title.', 'error'); return; }
+  if (!img)   { showToast('Please provide an image.', 'error'); return; }
+
+  const grid = document.querySelector('#software-projects .projects-grid');
+  if (!grid) return;
+
+  const card = buildProjectCardEl({ img, category, title, desc, btnLabel, link });
+  if (hidden) { card.classList.add('hidden'); card.style.display = 'none'; }
+  grid.appendChild(card);
+
+  requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('visible')));
+
+  saveSoftwareProjectsToStorage();
+  updateSoftwareShowMoreVisibility();
+
+  ['nsp-img', 'nsp-title', 'nsp-desc', 'nsp-link'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('nsp-btn-label').value = 'Show Details';
+  document.getElementById('nsp-img-preview').innerHTML =
+    `<span>Click to browse or paste a path above</span>
+     <input type="file" id="nsp-img-file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">`;
+  wireImgPreview('nsp-img-file', 'nsp-img', 'nsp-img-preview');
+
+  renderSoftwareProjectList();
   showToast(`"${title}" added and saved!`);
 });
 
@@ -752,6 +870,119 @@ function renderProjectList() {
   });
 }
 
+/* ── Render software project list in panel ───────────────────── */
+function renderSoftwareProjectList() {
+  const list = document.getElementById('dev-software-project-list');
+  if (!list) return;
+  const cards = Array.from(document.querySelectorAll('#software-projects .project-card'));
+
+  if (!cards.length) {
+    list.innerHTML = '<p style="font-size:0.78rem;color:var(--text-muted)">No software projects yet.</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+  cards.forEach((card, i) => {
+    const imgEl    = card.querySelector('.project-img');
+    const titleEl  = card.querySelector('.project-title');
+    const catEl    = card.querySelector('.project-category');
+    const descEl   = card.querySelector('.project-desc');
+    const linkEl   = card.querySelector('.project-overlay a');
+
+    const imgSrc   = imgEl?.src  || '';
+    const title    = titleEl?.textContent  || `Project ${i+1}`;
+    const category = catEl?.textContent    || '';
+    const desc     = descEl?.textContent   || '';
+    const btnLabel = linkEl?.textContent?.trim() || 'Show Details';
+    const link     = linkEl?.getAttribute('href') || '#';
+
+    const row = document.createElement('div');
+    row.innerHTML = `
+      <div class="dev-item">
+        <img class="dev-item-thumb" src="${imgSrc}" alt="${title}"
+             onerror="this.style.opacity=0.2;this.style.background='var(--bg-secondary)'">
+        <div class="dev-item-info">
+          <div class="dev-item-name">${title}</div>
+          <div class="dev-item-meta">${category}</div>
+        </div>
+        <div class="dev-item-actions">
+          <button class="dev-btn dev-btn-edit dev-btn-sm" data-action="edit" title="Edit">✏️</button>
+          <button class="dev-btn dev-btn-danger dev-btn-sm" data-action="delete" title="Delete">🗑</button>
+        </div>
+      </div>
+      <div class="dev-edit-form" id="dev-esf-${i}">
+        <div class="dev-field">
+          <label>Image Path or URL</label>
+          <input class="ep-img" type="text" value="${imgSrc}" placeholder="./assets/projects/..." />
+        </div>
+        <div class="dev-edit-row">
+          <div class="dev-field">
+            <label>Title</label>
+            <input class="ep-title" type="text" value="${title}" />
+          </div>
+          <div class="dev-field">
+            <label>Category</label>
+            <input class="ep-cat" type="text" value="${category}" />
+          </div>
+        </div>
+        <div class="dev-field">
+          <label>Description</label>
+          <textarea class="ep-desc">${desc}</textarea>
+        </div>
+        <div class="dev-edit-row">
+          <div class="dev-field">
+            <label>Button Label</label>
+            <input class="ep-btn" type="text" value="${btnLabel}" />
+          </div>
+          <div class="dev-field">
+            <label>Link URL</label>
+            <input class="ep-link" type="text" value="${link}" />
+          </div>
+        </div>
+        <button class="dev-btn dev-btn-primary ep-save" style="margin-top:0.5rem">💾 Save Changes</button>
+      </div>`;
+
+    row.querySelector('[data-action="edit"]').addEventListener('click', btn => {
+      const form = document.getElementById(`dev-esf-${i}`);
+      const open = form?.classList.toggle('open');
+      btn.currentTarget.textContent = open ? '✕' : '✏️';
+    });
+
+    row.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      const name = card.querySelector('.project-title')?.textContent || 'Project';
+      card.remove();
+      saveSoftwareProjectsToStorage();
+      updateSoftwareShowMoreVisibility();
+      renderSoftwareProjectList();
+      showToast(`"${name}" deleted.`);
+    });
+
+    row.querySelector('.ep-save').addEventListener('click', () => {
+      const f = document.getElementById(`dev-esf-${i}`);
+      if (!f) return;
+      const newImg  = f.querySelector('.ep-img').value.trim();
+      const newTitle = f.querySelector('.ep-title').value.trim();
+      const newCat   = f.querySelector('.ep-cat').value.trim();
+      const newDesc  = f.querySelector('.ep-desc').value.trim();
+      const newBtn   = f.querySelector('.ep-btn').value.trim();
+      const newLink  = f.querySelector('.ep-link').value.trim();
+
+      if (imgEl)   imgEl.src = newImg;
+      if (titleEl) titleEl.textContent  = newTitle;
+      if (catEl)   catEl.textContent    = newCat;
+      if (descEl)  descEl.textContent   = newDesc;
+      if (linkEl)  { linkEl.textContent = newBtn; linkEl.href = newLink; }
+
+      saveSoftwareProjectsToStorage();
+      f.classList.remove('open');
+      renderSoftwareProjectList();
+      showToast(`"${newTitle}" updated and saved!`);
+    });
+
+    list.appendChild(row);
+  });
+}
+
 /* ══════════════════════════════════════════════════════════════
    GALLERY MANAGER
    ══════════════════════════════════════════════════════════════ */
@@ -851,9 +1082,10 @@ function buildDevYearFilter() {
    ══════════════════════════════════════════════════════════════ */
 document.getElementById('dev-export-btn')?.addEventListener('click', () => {
   const data = {
-    exported  : new Date().toISOString(),
-    projects  : loadSavedProjects() || [],
-    gallery   : loadSavedGallery()  || [],
+    exported          : new Date().toISOString(),
+    projects          : loadSavedProjects()         || [],
+    softwareProjects  : loadSavedSoftwareProjects()  || [],
+    gallery           : loadSavedGallery()           || [],
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
@@ -869,8 +1101,9 @@ document.getElementById('dev-import-input')?.addEventListener('change', async e 
   try {
     const text = await file.text();
     const data = JSON.parse(text);
-    if (data.projects) localStorage.setItem(STORAGE.PROJECTS, JSON.stringify(data.projects));
-    if (data.gallery)  localStorage.setItem(STORAGE.GALLERY,  JSON.stringify(data.gallery));
+    if (data.projects)         localStorage.setItem(STORAGE.PROJECTS,          JSON.stringify(data.projects));
+    if (data.softwareProjects) localStorage.setItem(STORAGE.SOFTWARE_PROJECTS, JSON.stringify(data.softwareProjects));
+    if (data.gallery)          localStorage.setItem(STORAGE.GALLERY,           JSON.stringify(data.gallery));
     showToast('Data imported! Reloading…');
     setTimeout(() => location.reload(), 1200);
   } catch { showToast('Invalid JSON file.', 'error'); }
@@ -879,6 +1112,7 @@ document.getElementById('dev-import-input')?.addEventListener('change', async e 
 document.getElementById('dev-clear-btn')?.addEventListener('click', () => {
   if (!confirm('Clear ALL saved projects and gallery data? This cannot be undone.')) return;
   localStorage.removeItem(STORAGE.PROJECTS);
+  localStorage.removeItem(STORAGE.SOFTWARE_PROJECTS);
   localStorage.removeItem(STORAGE.GALLERY);
   showToast('All data cleared. Reloading…');
   setTimeout(() => location.reload(), 1200);

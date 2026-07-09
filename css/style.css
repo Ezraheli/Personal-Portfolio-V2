@@ -792,7 +792,6 @@ button { cursor: pointer; font-family: inherit; }
 /* ── 8. PROJECTS SECTION ────────────────────────────────────── */
 #projects {
   padding: 5rem 0; /* matches #about, #gallery, #contact */
-  background: var(--bg-secondary);
 }
 
 .projects-header {
